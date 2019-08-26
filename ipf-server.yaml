@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: udp-server
+spec:
+    replicas: 1
+    template:
+        metadata:
+            name: udp-server
+            labels:
+                app: udp-server
+        spec:
+            containers:
+            - name: udp-server
+              image: tolriaz/iperf:S
+              imagePullPolicy: Always
+              ports:
+              - containerPort: 30000
+                protocol: UDP
+              resources:
+                  requests:
+                      cpu: 100m
+            nodeName: kube-master
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: udp-svc
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  selector:
+    app: udp-server
+  clusterIP: 10.134.97.152
+  ports:
+  - protocol: UDP
+    port: 30000
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+    name: udp-server
+spec:
+    scaleTargetRef:
+        apiVersion: extensions/v1beta1
+        kind: Deployment
+        name: udp-server
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 50
