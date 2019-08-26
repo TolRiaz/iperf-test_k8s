@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: udp-client
+spec:
+    replicas: 1
+    template:
+        metadata:
+            name: udp-client
+            labels:
+                app: udp-client
+        spec:
+            containers:
+            - name: test
+              image: tolriaz/iperf
+              command: ["/bin/bash"]
+              args: ["-c","cd /usr/share/nginx/html/ && ./client_iperf.sh 10.134.97.152 10 30000 5"]   # IP adress, BW Mbits, Port, Sessions     UDP
+              ports:
+              - name: http-port
+                containerPort: 80
+            nodeName: kube-master
