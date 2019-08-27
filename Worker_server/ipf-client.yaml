@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
     name: udp-client
 spec:
-    replicas: 1
+    replicas: 5
     template:
         metadata:
             name: udp-client
@@ -18,4 +18,8 @@ spec:
               ports:
               - name: http-port
                 containerPort: 80
-            nodeName: kube-master
+            nodeSelector:
+              node-role.kubernetes.io/master: ""
+            tolerations:
+            - effect: NoSchedule
+              key: node-role.kubernetes.io/master
